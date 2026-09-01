@@ -1,4 +1,4 @@
 @echo off
 setlocal
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0start-game-server.ps1"
+start "黄金替罪芙" "%~dp0index.html"
 endlocal
