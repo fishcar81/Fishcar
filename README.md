@@ -23,7 +23,7 @@ https://fishcar81.github.io/Fishcar/
 
 - 基础教学：第 1—5 关（移动、钥匙、箱子、压板、传送门）
 - 替罪芙试炼：第 6—10 关（延迟复现、双替罪芙、箱子与传送门）
-- 高难试玩：第 15—17 关
+- 高难终局：第 11—12 关
 
 ## 操作
 
@@ -48,7 +48,7 @@ levels/level-1.html ~ 5     基础教学关
 levels/level-6.html ~ 10    替罪芙关卡配置
 levels/tutorial-core.js     第 1—5 关共用逻辑
 levels/echo-stage.js        第 6—10 关共用逻辑
-levels/level-15.html ~ 17   高难试玩关
+levels/level-11.html ~ 12   高难终局关
 assets/characters/          芙与替罪芙素材
 ```
 
