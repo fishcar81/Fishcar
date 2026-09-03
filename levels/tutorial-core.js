@@ -36,7 +36,32 @@ function move(name,silent=false){if(s.status!=='play'||!DIR[name])return false;c
 function notifyComplete(){if(window.parent!==window)window.parent.postMessage({type:'golden-scapegoat-complete',level:C.level},MESSAGE_ORIGIN)}
 function reset(){s=fresh();showHintBar(null);draw()}
 function undo(){showHintBar(null);if(!s.history.length||s.status==='win')return;const old=s.history.pop();s={...old,history:s.history};draw()}
-function hint(){if(s.status!=='play')return;const name=SOL[s.step];if(!name){showHintBar('<span class="keyword">标准答案已到最后一步。</span>');return;}const d=DIR[name];showHintBar(`<span class="keyword">标准答案下一步：${SYM[`${d[0]},${d[1]}`]}</span>　按方向键执行；提示不会替你移动。`)}
+function solverRequest(){
+ const keyMask=s.keys.reduce((mask,got,i)=>got?(mask+(2**i)):mask,0);
+ const idx=p=>p?p.y*W+p.x:-1;
+ const plateMode=C.plates==='any'?'tutorial-any':(C.plates==='none'?'tutorial-none':'tutorial');
+ return [MAP.join('~'),'','',idx(s.p),s.boxes.map(idx).join(','),keyMask,'','',s.step,plateMode].join('|');
+}
+function fallbackHint(){
+ const name=SOL[s.step];
+ if(!name){showHintBar('<span class="keyword">当前关卡已没有预写答案步骤。</span>');return;}
+ const d=DIR[name];
+ showHintBar(`<span class="keyword">提示：${SYM[`${d[0]},${d[1]}`]}</span>　提示不会替你移动。`);
+}
+async function hint(){
+ if(s.status!=='play')return;
+ showHintBar('C++ 正在于 400ms 内推演下一步……');
+ try{
+  if(typeof window.GoldenScapegoatHint!=='function')throw new Error('C++ 模块未加载');
+  const answer=await window.GoldenScapegoatHint(solverRequest());
+  const [kind,dir,count='0']=String(answer||'').split('|');
+  const symbol={U:'↑',D:'↓',L:'←',R:'→'}[dir];
+  if(kind==='FOUND'&&symbol)showHintBar(`<span class="keyword">C++ 提示：${symbol}</span>　已找到可通关路线。（已搜索 ${count} 个局面）`);
+  else if(kind==='BEST'&&symbol)showHintBar(`<span class="keyword">C++ 提示：${symbol}</span>　400ms 已到：给出当前最有希望的安全方向。（已搜索 ${count} 个局面）`);
+  else if(kind==='DONE')showHintBar('<span class="keyword">当前局面已经满足通关条件。</span>');
+  else {console.warn('C++ 提示未给出方向：',answer);fallbackHint();}
+ }catch(error){console.warn('C++ 提示模块不可用，改用后备提示。',error);fallbackHint();}
+}
 function rr(X,Y,w,h,r){x.beginPath();x.roundRect(X,Y,w,h,r)}
 const Z=38,OX=690,OY=120;
 function keyIcon(px,py,on){x.save();x.translate(px+Z/2,py+Z/2);x.strokeStyle=on?'#4d5d78':'#ffe27e';x.lineWidth=3;x.beginPath();x.arc(-6,-4,6,0,Math.PI*2);x.moveTo(-1,-1);x.lineTo(11,11);x.moveTo(6,6);x.lineTo(10,2);x.stroke();x.restore()}
@@ -59,7 +84,3 @@ function goNext(){if(s.status!=='win')return;if(window.parent!==window){window.p
 document.addEventListener('keydown',e=>{if(DIR[e.key]){e.preventDefault();move(e.key)}if(e.key==='r'||e.key==='R')reset();if(e.key==='z'||e.key==='Z')undo();if(e.key==='h'||e.key==='H')hint()});
 document.querySelector('#undo').onclick=undo;document.querySelector('#hint').onclick=hint;document.querySelector('#reset').onclick=reset;document.querySelector('#winRestart').onclick=reset;document.querySelector('#winNext').onclick=goNext;fu.onload=draw;verify();draw();
 })();
-
-
-
-
