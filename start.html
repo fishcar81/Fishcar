@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>黄金替罪芙 · 开始界面</title>
+<style>
+:root{--gold:#ffd66f;--violet:#c79cff;--cyan:#6de7ff;--text:#eff5ff;--muted:#aabce0}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;background:radial-gradient(circle at 72% 18%,rgba(84,78,164,.48),transparent 34%),radial-gradient(circle at 16% 82%,rgba(31,82,124,.5),transparent 38%),linear-gradient(145deg,#101a34,#060913 68%);color:var(--text);font-family:"Microsoft YaHei",system-ui,sans-serif}
+.stage{position:relative;height:100vh;width:min(1680px,100vw);margin:auto;display:grid;grid-template-rows:auto minmax(260px,1fr)}
+.title-row{grid-column:1/-1;display:flex;justify-content:center;align-items:flex-start;padding-top:6px;z-index:5;pointer-events:none}
+.title-image{display:block;width:min(585px,43vw,calc((100vh - 260px) * 0.7275));height:auto;filter:drop-shadow(0 14px 34px rgba(0,0,0,.58))}
+.bottom{position:relative;z-index:4;display:grid;grid-template-columns:minmax(150px,1fr) minmax(300px,440px) minmax(150px,1fr);align-items:end;min-height:0}
+.side{position:relative;height:100%;min-height:0;display:flex;align-items:flex-end;justify-content:center}
+.side img{height:min(82vh,1000px);width:auto;max-width:min(48vw,620px);object-fit:contain;object-position:bottom;filter:drop-shadow(0 26px 52px rgba(0,0,0,.62)) saturate(1.05)}
+.side.left img{margin-right:-2%}
+.side.right img{margin-left:-2%}
+.center{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:0 18px 19vh}
+.center::before{content:"";position:absolute;width:min(58vh,520px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(109,231,255,.10),rgba(255,214,111,.05) 44%,transparent 68%);filter:blur(10px);z-index:-1}
+.actions{display:grid;gap:16px;width:min(380px,100%)}
+button{position:relative;overflow:hidden;cursor:pointer;border:1px solid rgba(126,151,197,.62);border-radius:12px;background:linear-gradient(145deg,rgba(22,38,68,.94),rgba(9,14,28,.94));color:#eef5ff;padding:18px 22px;text-align:left;font:800 19px/1.2 "Microsoft YaHei",sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:.18s transform,.18s border-color,.18s box-shadow,.18s background}
+button small{display:block;margin-top:5px;color:#a9bde1;font-size:13px;font-weight:600;letter-spacing:.08em}
+button:hover{transform:translateY(-2px);border-color:#ffe4a0;background:linear-gradient(145deg,#253a66,#0d1527);box-shadow:0 18px 42px rgba(0,0,0,.44),0 0 18px rgba(255,214,111,.13)}
+button.primary{border-color:rgba(255,214,111,.82);background:linear-gradient(135deg,#f0c563,#9a6522);color:#241504}
+button.primary small{color:#4b3105}
+button:focus-visible{outline:2px solid #ffe394;outline-offset:3px}
+.vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 45%,transparent 49%,rgba(2,4,10,.78))}
+.fade{opacity:0;transform:translateY(12px);animation:rise .65s ease forwards}
+.fade:nth-child(2){animation-delay:.08s}.fade:nth-child(3){animation-delay:.16s}.fade:nth-child(4){animation-delay:.24s}
+@keyframes rise{to{opacity:1;transform:none}}
+@media(max-width:880px){body{overflow:auto}.stage{height:auto;min-height:100vh;grid-template-rows:auto auto;padding:6vh 0 42px}.title-row{padding:0 20px}.title-image{width:min(560px,88vw)}.bottom{grid-template-columns:1fr;align-items:start;min-height:auto}.side{height:auto;align-items:center}.side img{height:min(48vh,420px);max-width:76vw}.side.left img{margin-right:0}.side.right img{margin-left:0}.center{padding:26px 20px}}
+</style>
+</head>
+<body>
+<div class="vignette"></div>
+<main class="stage">
+  <section class="title-row fade"><img class="title-image" src="assets/start/title.png" alt="黄金替罪芙"></section>
+  <section class="bottom">
+    <section class="side left fade" aria-hidden="true"><img src="assets/start/furina-light.png" alt=""></section>
+    <section class="center">
+      <div class="fade">
+        <div class="actions">
+          <button class="primary" id="startGame">开始游戏<small>从第 1 关重新出发 · Enter</small></button>
+          <button id="continueGame">继续游戏<small>进入最近解锁的关卡 · C</small></button>
+          <button id="openCatalog">关卡目录<small>查看第 1 — 12 关 · L</small></button>
+        </div>
+      </div>
+    </section>
+    <section class="side right fade" aria-hidden="true"><img src="assets/start/furina-dark.png" alt=""></section>
+  </section>
+</main>
+<script>
+(()=>{'use strict';
+const ORDER=[1,2,3,4,5,6,7,8,9,10,11,12];
+const KEY='golden-scapegoat-edition2-progress-v4';
+const read=()=>{try{const raw=localStorage.getItem(KEY);if(!raw)return{unlockedIndex:0,completed:[]};const v=JSON.parse(raw);const done=Array.isArray(v.completed)?v.completed.map(Number).filter(x=>ORDER.includes(x)):[];const idx=Number.isInteger(v.unlockedIndex)?v.unlockedIndex:0;return{unlockedIndex:Math.max(0,Math.min(ORDER.length-1,idx)),completed:done}}catch{return{unlockedIndex:0,completed:[]}}};
+const state=read(),level=ORDER[state.unlockedIndex];
+const startButton=document.querySelector('#startGame'),continueButton=document.querySelector('#continueGame');
+continueButton.querySelector('small').textContent=`进入第 ${level} 关 · C`;
+const firstLevel=()=>location.href='index.html?start=1';
+startButton.onclick=()=>{if(state.unlockedIndex===0&&!state.completed.length)firstLevel();else if(confirm(`已有进度：第 ${level} 关已解锁。确定从第 1 关重新开始吗？（不会清除通关记录）`))firstLevel();};
+continueButton.onclick=()=>location.href=`index.html?continue=${level}`;
+document.querySelector('#openCatalog').onclick=()=>location.href='index.html';
+document.addEventListener('keydown',e=>{if(e.repeat)return;if(e.key==='Enter'){e.preventDefault();startButton.click()}else if(e.key==='c'||e.key==='C'){e.preventDefault();continueButton.click()}else if(e.key==='l'||e.key==='L'){e.preventDefault();location.href='index.html'}});
+})();
+</script>
+</body>
+</html>
+
+
+
+
+

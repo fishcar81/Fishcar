@@ -11,7 +11,7 @@
 <body>
 <div class="toast" id="toast" role="status"></div>
 <main class="shell">
-<header class="top"><div><p class="eyebrow">GOLDEN SCAPEGOAT · PLAYABLE EDITION</p><h1>黄金替罪芙 <small>完整记录 01 — 12</small></h1><p class="intro">依次完成 12 段实验记录：移动、钥匙、箱子、压板、传送门与替罪芙。完成关卡会自动保存进度。</p></div><aside class="progress"><b id="progressText">实验进度 0 / 12</b><br><span id="progressDesc">第 1 关已解锁</span><div class="bar"><i id="progressBar"></i></div></aside><button class="directory-toggle" id="catalogToggle">关卡目录</button></header>
+<header class="top"><div><p class="eyebrow">GOLDEN SCAPEGOAT · PLAYABLE EDITION</p><h1>黄金替罪芙 <small>完整记录 01 — 12</small></h1><p class="intro">依次完成 12 段实验记录：移动、钥匙、箱子、压板、传送门与替罪芙。完成关卡会自动保存进度。</p></div><aside class="progress"><b id="progressText">实验进度 0 / 12</b><br><span id="progressDesc">第 1 关已解锁</span><div class="bar"><i id="progressBar"></i></div></aside><button class="directory-toggle" onclick="location.href='start.html'">开始界面</button><button class="directory-toggle" id="catalogToggle">关卡目录</button></header>
 <section class="levels" aria-label="关卡选择">
 <button class="level" data-level="1" data-title="第 1 关 · 初次逃离" data-desc="移动与墙体"><span class="num">1</span><span class="tag">基础教学</span><h2>初次逃离</h2><p>熟悉上下左右移动、墙体碰撞与抵达 Exit。</p></button>
 <button class="level" data-level="2" data-title="第 2 关 · 钥匙档案" data-desc="钥匙 · Exit 验证"><span class="num">2</span><span class="tag">基础教学</span><h2>钥匙档案</h2><p>先收集所有钥匙，Exit 才能完成验证。</p></button>
@@ -49,8 +49,13 @@ function unlockAfter(level){const idx=indexOf(level);if(idx>=0&&idx<ORDER.length
 window.addEventListener('message',event=>{const isDirectFile=location.protocol==='file:';if((!isDirectFile&&event.origin!==location.origin)||!event.data||event.source!==frame.contentWindow)return;const level=Number(event.data.level);if(!LEVELS[level])return;if(event.data.type==='golden-scapegoat-open-next'){const idx=indexOf(level);if(idx<ORDER.length-1){unlockAfter(level);save();paint();open(ORDER[idx+1]);}else document.querySelector('.levels').scrollIntoView({behavior:'smooth',block:'start'});return;}if(event.data.type!=='golden-scapegoat-complete')return;if(!isDone(level))state.completed.push(level);unlockAfter(level);save();paint();if(state.completed.length===ORDER.length)showToast('全部 12 段实验记录已完成。黄金替罪芙试玩章节通关！');else if(indexOf(level)<ORDER.length-1)showToast(`${LEVELS[level].name} 完成！${LEVELS[ORDER[indexOf(level)+1]].name} 已解锁。`);else showToast(`${LEVELS[level].name} 完成！章节进度已保存。`);});
 document.querySelector('#skipLevel').addEventListener('click',()=>{const idx=indexOf(active);if(idx>=ORDER.length-1){showToast('已经是当前章节最后一关。');return;}const next=ORDER[idx+1];if(!confirm(`确定跳过第 ${active} 关并解锁第 ${next} 关吗？`))return;state.unlockedIndex=Math.max(state.unlockedIndex,idx+1);save();paint();open(next);showToast(`已跳过第 ${active} 关；第 ${next} 关已解锁。`);});
 document.querySelector('#resetProgress').addEventListener('click',()=>{if(!confirm('确定清除第 1—12 关的通关进度和解锁状态吗？'))return;state={unlockedIndex:0,completed:[]};save();open(1);paint();showToast('通关进度已清除。');});
-paint();open(active);
+const params=new URLSearchParams(location.search);
+let requested=params.get('start')==='1'?1:Number.parseInt(params.get('continue')||'',10);
+if(!ORDER.includes(requested)||indexOf(requested)>state.unlockedIndex)requested=active;
+try{history.replaceState(null,'',location.pathname);}catch{}
+paint();open(requested);
 })();
 </script>
 </body>
 </html>
+
